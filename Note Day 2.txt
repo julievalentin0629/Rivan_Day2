@@ -1,0 +1,295 @@
+@D1core
+config t
+vlan 25
+ name GOOGLECLOUD
+ exit
+Int vlan 25
+ no shut
+ ip add 10.0.32.1 255.255.224.0
+ip dhcp excluded-add 10.0.32.1 10.0.32.100
+ip dhcp pool GOOGLECLOUD.COM
+ network 10.0.32.0 255.255.224.0
+ default-router 10.0.32.1
+ domain-name GOOGLECLOUD.COM
+ dns-server 10.11.1.10
+ option 150 ip 10.11.100.8
+end
+@A1access
+conf t
+ Int e0/0
+  swi access vlan 25
+  do sh vlan brief
+end
+@PC1
+conf t
+ Int e0/0
+  no shut
+  ip add dhcp
+  do bp
+end
+
+
+_____________________________________________
+Design for PG
+2500 users = 12 bits
+
+@D1core
+config t
+vlan 26
+ name PNG.COM
+ exit
+Int vlan 26
+ no shut
+ ip add 10.0.16.1 255.255.240.0
+ip dhcp excluded-add 10.0.16.1 10.0.16.100
+ip dhcp pool PNG.COM
+ network 10.0.16.0 255.255.240.0
+ default-router 10.0.16.1
+ domain-name PNG.COM
+ dns-server 10.11.1.10
+ option 150 ip 10.11.100.8
+end
+@A2access
+conf t
+ Int e1/0
+  swi access vlan 26
+  do sh vlan brief
+end
+@PC2
+conf t
+ Int e1/0
+  no shut
+  ip add dhcp
+  do bp
+end
+
+
+
+______________________________________________________
+
+1300 user
+
+@D1core
+config t
+vlan 27
+ name TELUSNOC
+ exit
+Int vlan 27
+ no shut
+ ip add 10.0.0.65 255.255.255.192
+ip dhcp excluded-add 10.0.0.65 10.0.0.69
+ip dhcp pool TELUSNOC
+ network 10.0.0.64 255.255.255.192
+ default-router 10.0.0.65
+ domain-name TELUSNOC
+ dns-server 10.11.1.10
+ option 150 ip 10.11.100.8
+end
+@D2core
+conf t
+ Int e1/0
+  swi access vlan 27
+  do sh vlan brief
+end
+@S2
+conf t
+ Int e1/0
+  no shutsh 
+  ip add dhcp
+  do bp
+end
+
+***************************************************************
+HUAWEIPH.COM
+1300 user
+
+@D1core
+config t	
+name HUAWEIPH.COM
+exit
+Int vlan 168
+no shut
+ip add 10.0.8.1 255.255.248.0
+ip dhcp excluded-add 10.0.8.1 10.0.8.100
+ip dhcp pool HUAWEIPH.COM
+network 10.0.8.0 255.255.248.0
+default-router 10.0.8.1
+domain-name HUAWEIPH.COM
+dns-server 10.11.1.10
+option 150 ip 10.11.100.8
+end
+
+@A1access
+conf t
+ Int e0/0
+  swi access vlan 168
+  do sh vlan brief
+end
+@PC1
+conf t
+ Int e0/0
+  no shut
+  ip add dhcp
+  do bp
+end
+
+
+
+**************************************************
+PAGCOR.COM
+
+@D1core
+config t
+vlan 88
+ name PAGCOR.COM
+ exit
+Int vlan 88
+ no shut
+ ip add 10.0.4.1 255.255.252.0
+ip dhcp excluded-add 10.0.4.1 10.0.4.100
+ip dhcp pool PAGCOR.COM
+ network 10.0.4.0 255.255.252.0
+ default-router 10.0.4.1
+ domain-name PAGCOR.COM
+ dns-server 10.11.1.10
+ option 150 ip 10.11.100.8
+end
+@A2access
+conf t
+ Int e1/0
+  swi access vlan 88
+  do sh vlan brief
+end
+@PC2
+conf t
+ Int e1/0
+  no shut
+  ip add dhcp
+  do bp
+end
+
+
+
+**************************************************
+this activity is to subnet network equally
+
+subnet for 16 offices using hte available ip address space of 10.0.0.0/8 maxumize the number of hosts
+
+C: Convert (via Subnet): 4 bits
+A: Add to original: /8 + 4 bits = /12 (2nd, 16i)
+I: Ipasok si 16i sa second octet, 16 times: 
+1st office - 10.0.0.0/12 = ip subnet zero
+2nd office - 10.16.0.0/12
+3rd office - 10.32.0.0/12
+4th office - 10.48.0.0/12
+
+8 offices = 3bits
+/25 + 3 bits = /28 (4th, 16i)
+192.168.1.0/28
+192.168.1.16/28
+192.168.1.32/28
+192.168.1.48/28
+192.168.1.64/28
+192.168.1.80/28
+192.168.1.96/28
+192.168.1.112/28
+
+_______________________________________________________
+
+subnet for 32 offices using the available ip address space of 10.0.0.0/16 Maximize the number of hosts
+
+32 offices = 5bits
+/16 + 5bits = /21 (3rd, 8i)
+10.0.0.0/21
+10.0.8.0/21
+10.0.16.0/21
+10.0.24.0/21
+
+Give me the 3rd office : 10.0.16.0/21
+first valid (+1 sa net) 10.0.16.1
+last valid (-1 sa broad) 10.0.23.254
+Broadcast (-1 sa 4th office) 10.0.23.255
+
+
+
+@R1core
+conf t
+Int e1/0
+ip add 10.0.16.1 255.255.248.0
+no shut 
+end
+@R2
+conf t
+Int e1/2
+ip add 10.0.23.254 255.255.248.0
+no shut
+end
+
+
+test wrong ip
+conf t
+Int e1/2
+ip add 10.0.25.1 255.255.248.0
+no shut
+end
+
+subnet for 70 offices using the available ip address space of 172.16.0.0/16 Maximize the number of hosts
+
+70 = 7 bits
+/16 + 7 = /23 (3rd , 2i)
+
+172.0.0.0/23
+172.16.2.0/23
+172.16.4.0/23
+172.16.6.0/23
+172.16.8.0/23
+
+4th office: 
+Network: 172.16.6.0/23
+1st: 172.16.6.1
+last: 172.16.7.254
+Broadcast: 172.16.7.255
+outside: 172.16.8.0/23
+*************************************************************************
+
+Static Routing
+Formula:
+Destination
+Submask
+next hop/interface
+
+config of host route
+!@R1
+conf t
+ip route 10.1.1.5 255.255.255.255 10.1.1.2
+end
+
+
+!@R2
+conf t
+ip route 10.1.1.9 255.255.255.255 10.1.1.6
+end
+
+
+network route
+!@R2
+conf t
+ip route 10.1.1.8 255.255.255.252 10.1.1.6
+end
+
+
+!@R4
+conf t
+ip route 10.1.1.4 255.255.255.252 10.1.1.9
+end
+
+
+to delete wrong config line
+no ip route 10.1.1.4 255.255.255.252 10.1.1.9
+end
+
+
+!@R1
+conf t
+ip route 10.1.1.5 255.255.255.255 10.1.1.2
+end
